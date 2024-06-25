@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voter View</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #D2E3C8;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #EBF3E8;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center; 
+        }
+        h1 {
+            text-align: center;
+            color: #041C32;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            background-color: #78A083;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #436850;
+        }
+        #result {
+            margin-top: 20px;
+        }
+        #voteForm {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        #voteForm input[type="text"], #voteForm select {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        #voteForm select {
+            flex: 1;
+            margin-left: 10px;
+        }
+        /* Style for the refresh button */
+        .refresh-button {
+            padding: 5px; /* Adjust padding as needed */
+        }
+
+        /* Style for the refresh icon */
+        .refresh-button img {
+            width: 20px; 
+            height: 25px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Voter View</h1>
+        <div id="voteForm">
+            <input type="text" id="voterID" placeholder="Enter Voter ID">   
+            <select id="modelName">
+                <!-- Options will be dynamically populated -->
+            </select>
+            <button class="refresh-button" onclick="refreshModelNames()">
+                <img src="refresh_icon.png" alt="Refresh">
+            </button>  
+        </div>        
+        <button onclick="vote()">Vote</button>
+        <button onclick="deleteVote()">Delete Vote</button>
+        <button onclick="retrieveVote()">Retrieve Vote</button>   
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // Function to vote
+        function vote() {
+            const voterID = document.getElementById('voterID').value;
+            const modelName = document.getElementById('modelName').value;
+            fetch('https://localhost:443/vote/' + voterID+ '/'+modelName, { method: 'POST' })
+                .then(response => response.text())
+                .then(data => document.getElementById('result').innerText = data)
+                .catch(error => console.error('Error:', error));
+        }
+
+        // Function to refresh model names in the dropdown
+        function refreshModelNames() {
+            populateModelNames();
+        }
+
+        // Function to fetch model names from the server and populate the select element
+        function populateModelNames() {
+            fetch('https://localhost:443/models', { method: 'GET' })
+                .then(response => response.json())
+                .then(data => {
+                    const selectElement = document.getElementById('modelName');
+                    selectElement.innerHTML = ''; // Clear existing options
+                    data.forEach(model => {
+                        const option = document.createElement('option');
+                        option.value = model.modelName;
+                        option.textContent = model.modelName;
+                        selectElement.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        // Call the populateModelNames function to populate the select element when the page loads
+        populateModelNames();
+
+
+        // Function to delete vote
+        function deleteVote() {
+            const voterID = document.getElementById('voterID').value;
+            fetch('https://localhost:443/delete/' + voterID, { method: 'DELETE' })
+                .then(response => response.text())
+                .then(data => document.getElementById('result').innerText = data)
+                .catch(error => console.error('Error:', error));
+        }
+
+        // Function to retrieve vote
+        function retrieveVote() {
+            const voterID = document.getElementById('voterID').value;
+            fetch('https://localhost:443/retrieve/' + voterID, { method: 'GET' })
+                .then(response => response.text())
+                .then(data => document.getElementById('result').innerText = data)
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>

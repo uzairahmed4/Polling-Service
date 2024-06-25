@@ -1,0 +1,5 @@
+welcome\service\WelcomeService.class
+welcome\controller\WelcomeController.class
+welcome\model\Welcome.class
+welcome\service\WelcomeServiceImpl.class
+welcome\WelcomeDemoApplication.class

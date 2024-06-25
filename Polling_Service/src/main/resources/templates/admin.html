@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin View</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #9AC8CD;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #E1F7F5;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1)
+            text-align: center;
+        }
+        h1 {
+            text-align: center;
+            color: #041C32;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            background-color: #7AB2B2;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #4D869C;
+        }
+        #voteTally {
+            margin-top: 20px;
+            text-align: center;
+        }
+        /* Apply styling similar to voter view */
+        #adminForm {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        #adminForm input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 100px;
+            margin-left: 70px
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Admin View</h1>
+        <div id="adminForm">
+            <input type="text" id="modelName" placeholder="Enter model name">
+            <input type="text" id="purpose" placeholder="Enter model purpose">
+        </div>
+        <div>
+            <button onclick="addModel()">Add Model</button>
+            <button onclick="deleteModel()">Delete Model</button>
+        </div>
+        <div>
+            <button onclick="displayVoteTally()">Display Vote Tally</button>
+            <button onclick="displayInterest()">Display Interest</button>
+            <button onclick="startPoll()">Start Poll</button>
+            <button onclick="stopPoll()">Stop Poll</button>
+            <button onclick="verifyVotes()">Verify Votes</button>
+        </div>
+        <div id="voteTally"></div>
+    </div>
+
+    <script>
+        function displayVoteTally() {
+            fetch('https://localhost:443/tallyVotes', { method: 'GET' })
+                .then(response => response.json())
+                .then(data => {
+                    const voteTallyElement = document.getElementById('voteTally');
+                    voteTallyElement.innerHTML = "<h2>Vote Tally:</h2>";
+                    for (const [modelName, count] of Object.entries(data)) {
+                        voteTallyElement.innerHTML += `<p>${modelName}: ${count}</p>`;
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function displayInterest() {
+            fetch('https://localhost:443/tallyInterests', { method: 'GET' })
+                .then(response => response.json())
+                .then(data => {
+                    const voteTallyElement = document.getElementById('voteTally');
+                    voteTallyElement.innerHTML = "<h2>Most Popular Interest by Model:</h2>";
+                    for (const [modelName, count] of Object.entries(data)) {
+                        voteTallyElement.innerHTML += `<p>${modelName}: ${count}</p>`;
+                    }
+                })
+                .catch(error => console.error('Error:', error)); // Log any errors
+        }
+
+        function addModel() {
+            const modelName = document.getElementById('modelName').value;
+            const purpose = document.getElementById('purpose').value;
+    
+            // Check if modelName or purpose is empty
+            if (!modelName || !purpose) {
+                // Display a prompt to the user to enter the missing information
+                const missingInfo = !modelName ? 'model name' : 'purpose';
+                const userInput = prompt(`Please enter the ${missingInfo}:`);
+    
+                // Update the respective input field with the user input
+                if (!modelName) {
+                    document.getElementById('modelName').value = userInput;
+                } else {
+                    document.getElementById('purpose').value = userInput;
+                }
+    
+                // If user cancels or provides empty input, exit function
+                if (!userInput) {
+                    return;
+                }
+            }
+    
+            const url = 'https://localhost:443/addModel/' + modelName + '/' + purpose;
+            fetch(url, { method: 'POST' })
+                .then(response => document.getElementById('voteTally').innerText ='Model added.')
+                .catch(error => console.error('Error:', error));
+        }      
+
+        function deleteModel() {
+            const modelName = document.getElementById('modelName').value;
+            if (!modelName) {
+                // Display a prompt to the user to enter the missing information
+                const missingInfo = 'model name'; // Removed redundant check
+                const userInput = prompt(`Please enter the ${missingInfo}:`);
+                
+                // Check if userInput is null or empty
+                if (userInput === null || userInput.trim() === '') {
+                    return; // Exit function if user cancels or provides empty input
+                }
+        
+                document.getElementById('modelName').value = userInput;
+            }    
+        
+            fetch('https://localhost:443/deleteModel/'+ modelName, { method: 'DELETE' })
+                .then(response => document.getElementById('voteTally').innerText = 'Model deleted.')
+                .catch(error => console.error('Error:', error));
+        }        
+
+        function startPoll() {
+            fetch('https://localhost:443/startPoll', { method: 'POST' })
+                .then(response => document.getElementById('voteTally').innerText ='Poll started.')
+                .catch(error => console.error('Error:', error));
+        }
+
+        function stopPoll() {
+            fetch('https://localhost:443/stopPoll', { method: 'POST' })
+                .then(response => document.getElementById('voteTally').innerText ='Poll stopped.')
+                .catch(error => console.error('Error:', error));
+        }
+
+        function verifyVotes() {
+            fetch('https://localhost:443/verifyVotes', { method: 'GET' })
+                .then(response => document.getElementById('voteTally').innerText ='Votes verified.')
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
