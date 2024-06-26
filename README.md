@@ -17,3 +17,10 @@ The web service allows voters to cast their votes for different AI models anonym
 - Analyze voting behavior by identifying popular topics among voters.
 - Validate voters against a voter profile service.
 - Additional functionalities like adding/removing models and managing poll status.
+
+## License
+This project is licensed under the [MIT License](./LICENSE.txt).
+
+## Contact
+For any questions, feedback, or collaborations, feel free to reach out:
+- Email: uzairahmedrak@gmail.com
